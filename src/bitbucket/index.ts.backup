@@ -1,0 +1,320 @@
+#!/usr/bin/env node
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from '@modelcontextprotocol/sdk/types.js';
+import { BitbucketService } from './service.js';
+
+const server = new Server(
+  {
+    name: 'bitbucket-mcp',
+    version: '1.0.0',
+  },
+  {
+    capabilities: {
+      tools: {},
+    },
+  }
+);
+
+const bitbucket = new BitbucketService();
+
+// List available tools
+server.setRequestHandler(ListToolsRequestSchema, async () => {
+  return {
+    tools: [
+      {
+        name: 'bitbucket_get_repos',
+        description: 'Search Bitbucket repositories by project key',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            project_key: {
+              type: 'string',
+              description: 'The Bitbucket project key',
+            },
+            start_index: {
+              type: 'number',
+              description: 'Starting index for pagination',
+              default: 0,
+            },
+            limit: {
+              type: 'number',
+              description: 'Maximum number of results (max 100)',
+              default: 30,
+            },
+          },
+          required: ['project_key'],
+        },
+      },
+      {
+        name: 'bitbucket_get_commits',
+        description: 'Get Bitbucket commits for a specific repository and branch',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            project_key: {
+              type: 'string',
+              description: 'The Bitbucket project key',
+            },
+            repo_slug: {
+              type: 'string',
+              description: 'The repository slug',
+            },
+            branch_name: {
+              type: 'string',
+              description: 'The branch name',
+            },
+            start_index: {
+              type: 'number',
+              description: 'Starting index for pagination',
+              default: 0,
+            },
+            limit: {
+              type: 'number',
+              description: 'Maximum number of results (max 30)',
+              default: 30,
+            },
+          },
+          required: ['project_key', 'repo_slug', 'branch_name'],
+        },
+      },
+      {
+        name: 'bitbucket_get_pull_requests',
+        description: 'Get Bitbucket pull requests for a specific repository',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            project_key: {
+              type: 'string',
+              description: 'The Bitbucket project key',
+            },
+            repo_slug: {
+              type: 'string',
+              description: 'The repository slug',
+            },
+            start_index: {
+              type: 'number',
+              description: 'Starting index for pagination',
+              default: 0,
+            },
+            limit: {
+              type: 'number',
+              description: 'Maximum number of results (max 30)',
+              default: 30,
+            },
+          },
+          required: ['project_key', 'repo_slug'],
+        },
+      },
+      {
+        name: 'bitbucket_get_file_content',
+        description: 'Get Bitbucket file content for a specific file',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            project_key: {
+              type: 'string',
+              description: 'The Bitbucket project key',
+            },
+            repo_slug: {
+              type: 'string',
+              description: 'The repository slug',
+            },
+            file_path: {
+              type: 'string',
+              description: 'The file path',
+            },
+          },
+          required: ['project_key', 'repo_slug', 'file_path'],
+        },
+      },
+      {
+        name: 'bitbucket_get_repo_structure',
+        description: 'Get Bitbucket repository structure',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            project_key: {
+              type: 'string',
+              description: 'The Bitbucket project key',
+            },
+            repo_slug: {
+              type: 'string',
+              description: 'The repository slug',
+            },
+            path: {
+              type: 'string',
+              description: 'The directory path (optional)',
+              default: '',
+            },
+            max_depth: {
+              type: 'number',
+              description: 'Maximum depth for recursion (max 10)',
+              default: 10,
+            },
+          },
+          required: ['project_key', 'repo_slug'],
+        },
+      },
+      {
+        name: 'bitbucket_get_pull_request_diff',
+        description: 'Get Bitbucket pull request diff',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            project_key: {
+              type: 'string',
+              description: 'The Bitbucket project key',
+            },
+            repo_slug: {
+              type: 'string',
+              description: 'The repository slug',
+            },
+            pull_request_id: {
+              type: 'number',
+              description: 'The pull request ID',
+            },
+          },
+          required: ['project_key', 'repo_slug', 'pull_request_id'],
+        },
+      },
+    ],
+  };
+});
+
+// Handle tool calls
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+
+  try {
+    switch (name) {
+      case 'bitbucket_get_repos': {
+        const result = await bitbucket.getRepos(
+          args.project_key as string,
+          args.start_index as number,
+          args.limit as number
+        );
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'bitbucket_get_commits': {
+        const result = await bitbucket.getCommits(
+          args.project_key as string,
+          args.repo_slug as string,
+          args.branch_name as string,
+          args.start_index as number,
+          args.limit as number
+        );
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'bitbucket_get_pull_requests': {
+        const result = await bitbucket.getPullRequests(
+          args.project_key as string,
+          args.repo_slug as string,
+          args.start_index as number,
+          args.limit as number
+        );
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'bitbucket_get_file_content': {
+        const result = await bitbucket.getFileContent(
+          args.project_key as string,
+          args.repo_slug as string,
+          args.file_path as string
+        );
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'bitbucket_get_repo_structure': {
+        const result = await bitbucket.getRepoStructure(
+          args.project_key as string,
+          args.repo_slug as string,
+          args.path as string,
+          args.max_depth as number
+        );
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'bitbucket_get_pull_request_diff': {
+        const result = await bitbucket.getPullRequestDiff(
+          args.project_key as string,
+          args.repo_slug as string,
+          args.pull_request_id as number
+        );
+        return {
+          content: [
+            {
+              type: 'text',
+              text: result,
+            },
+          ],
+        };
+      }
+
+      default:
+        throw new Error(`Unknown tool: ${name}`);
+    }
+  } catch (error) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify({ error: (error as Error).message }),
+        },
+      ],
+      isError: true,
+    };
+  }
+});
+
+// Start the server
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error('Bitbucket MCP server running on stdio');
+}
+
+main().catch((error) => {
+  console.error('Fatal error in main():', error);
+  process.exit(1);
+});
