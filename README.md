@@ -17,8 +17,8 @@ A production-ready MCP server implementation providing deep integration with Atl
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/mshashank0/atlassian-mcp-server.git
-   cd atlassian-mcp-server
+   git clone https://github.com/mshashank0/mcp-server-for-atlassian-ai-assistant.git
+   cd mcp-server-for-atlassian-ai-assistant
    ```
 
 2. Install dependencies:
@@ -64,9 +64,6 @@ After building the project, add the following configuration to your MCP settings
 **For Roo Code:**
 - Location: `~/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json`
 
-**For Claude Desktop:**
-- Location: `~/Library/Application Support/Claude/claude_desktop_config.json`
-
 Add the following configuration (replace paths with your actual installation path):
 
 ```json
@@ -75,40 +72,33 @@ Add the following configuration (replace paths with your actual installation pat
     "bitbucket-mcp": {
       "command": "node",
       "args": [
-        "/path/to/your/atlassian-mcp-server/dist/bitbucket/index.js"
+        "/path/to/your/mcp-server-for-atlassian-ai-assistant/dist/bitbucket/index.js" /**Path to the compiled Javascript entry point for each MCP server **/
       ],
-      "cwd": "/path/to/your/atlassian-mcp-server/",
-      "disabled": false,
+      "cwd": "/path/to/your/mcp-server-for-atlassian-ai-assistant/", /**Project root directory**/
+      "disabled": false, /**Set to false to enable the server**/
       "alwaysAllow": []
     },
     "confluence-mcp": {
       "command": "node",
       "args": [
-        "/path/to/your/atlassian-mcp-server/dist/confluence/index.js"
+        "/path/to/your/mcp-server-for-atlassian-ai-assistant/dist/confluence/index.js"
       ],
-      "cwd": "/path/to/your/atlassian-mcp-server/",
+      "cwd": "/path/to/your/mcp-server-for-atlassian-ai-assistant/",
       "disabled": false,
       "alwaysAllow": []
     },
     "jira-mcp": {
       "command": "node",
       "args": [
-        "/path/to/your/atlassian-mcp-server/dist/jira/index.js"
+        "/path/to/your/mcp-server-for-atlassian-ai-assistant/dist/jira/index.js"
       ],
-      "cwd": "/path/to/your/atlassian-mcp-server/",
+      "cwd": "/path/to/your/mcp-server-for-atlassian-ai-assistant/",
       "disabled": false,
       "alwaysAllow": []
     }
   }
 }
 ```
-
-**Configuration Notes:**
-- Replace `/path/to/your/atlassian-mcp-server/` with the actual absolute path to your project directory
-- `args`: Points to the compiled JavaScript entry point for each MCP server
-- `cwd`: Should be the root directory of this project
-- `disabled`: Set to `false` to enable the server
-- `alwaysAllow`: Array of tool names that don't require user confirmation (leave empty for maximum security)
 
 **Example with absolute paths:**
 ```json
@@ -117,9 +107,9 @@ Add the following configuration (replace paths with your actual installation pat
     "bitbucket-mcp": {
       "command": "node",
       "args": [
-        "/Users/yourusername/Documents/atlassian-mcp-server/dist/bitbucket/index.js"
+        "/Users/yourusername/Documents/mcp-server-for-atlassian-ai-assistant/dist/bitbucket/index.js"
       ],
-      "cwd": "/Users/yourusername/Documents/atlassian-mcp-server/",
+      "cwd": "/Users/yourusername/Documents/mcp-server-for-atlassian-ai-assistant/",
       "disabled": false,
       "alwaysAllow": []
     }
