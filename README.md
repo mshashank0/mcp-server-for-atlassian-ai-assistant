@@ -6,6 +6,129 @@ A comprehensive MCP (Model Context Protocol) server implementation for Atlassian
 
 A production-ready MCP server implementation providing deep integration with Atlassian's core products. Built with TypeScript for maximum type safety and maintainability.
 
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 22.12.0 or higher
+- Yarn 3.2.4
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/mshashank0/atlassian-mcp-server.git
+   cd atlassian-mcp-server
+   ```
+
+2. Install dependencies:
+   ```bash
+   yarn install
+   ```
+
+3. Copy the `.env.example` file to `.env` and fill in your credentials:
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Edit `.env` with your API credentials:
+   ```env
+   # Confluence Server/Data Center Configuration
+   CONFLUENCE_BASE_URL=https://your-confluence-server.com/confluence
+   CONFLUENCE_API_TOKEN=your-api-token
+
+   # Jira Server/Data Center Configuration
+   JIRA_BASE_URL=https://your-jira-server.com/jira
+   JIRA_API_TOKEN=your-api-token
+
+   # Bitbucket Server/Data Center Configuration
+   BITBUCKET_BASE_URL=https://your-bitbucket-server.com/
+   BITBUCKET_API_TOKEN=your-api-token
+   ```
+
+   **Note**: You only need to configure environment variables for the services you intend to use. Each MCP server (Bitbucket, Confluence, Jira) operates independently and only requires its own environment variables.
+
+### Building
+
+Build the TypeScript code:
+```bash
+yarn build
+```
+
+This will compile TypeScript files from `src/` to JavaScript in `dist/`.
+
+### Configuring MCP Servers in Roo Code or Claude Desktop
+
+After building the project, add the following configuration to your MCP settings file:
+
+**For Roo Code:**
+- Location: `~/Library/Application Support/Code/User/globalStorage/rooveterinaryinc.roo-cline/settings/mcp_settings.json`
+
+**For Claude Desktop:**
+- Location: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+Add the following configuration (replace paths with your actual installation path):
+
+```json
+{
+  "mcpServers": {
+    "bitbucket-mcp": {
+      "command": "node",
+      "args": [
+        "/path/to/your/atlassian-mcp-server/dist/bitbucket/index.js"
+      ],
+      "cwd": "/path/to/your/atlassian-mcp-server/",
+      "disabled": false,
+      "alwaysAllow": []
+    },
+    "confluence-mcp": {
+      "command": "node",
+      "args": [
+        "/path/to/your/atlassian-mcp-server/dist/confluence/index.js"
+      ],
+      "cwd": "/path/to/your/atlassian-mcp-server/",
+      "disabled": false,
+      "alwaysAllow": []
+    },
+    "jira-mcp": {
+      "command": "node",
+      "args": [
+        "/path/to/your/atlassian-mcp-server/dist/jira/index.js"
+      ],
+      "cwd": "/path/to/your/atlassian-mcp-server/",
+      "disabled": false,
+      "alwaysAllow": []
+    }
+  }
+}
+```
+
+**Configuration Notes:**
+- Replace `/path/to/your/atlassian-mcp-server/` with the actual absolute path to your project directory
+- `args`: Points to the compiled JavaScript entry point for each MCP server
+- `cwd`: Should be the root directory of this project
+- `disabled`: Set to `false` to enable the server
+- `alwaysAllow`: Array of tool names that don't require user confirmation (leave empty for maximum security)
+
+**Example with absolute paths:**
+```json
+{
+  "mcpServers": {
+    "bitbucket-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/yourusername/Documents/atlassian-mcp-server/dist/bitbucket/index.js"
+      ],
+      "cwd": "/Users/yourusername/Documents/atlassian-mcp-server/",
+      "disabled": false,
+      "alwaysAllow": []
+    }
+  }
+}
+```
+
+After adding the configuration, restart Roo Code or Claude Desktop for the changes to take effect.
+
 ## 📁 Project Structure
 
 ```
